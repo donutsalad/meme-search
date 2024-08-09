@@ -3,62 +3,74 @@ import glob
 from PIL import Image
 from transformers import AutoProcessor, SiglipVisionModel
 import os
+import gc  # import garbage collector
 
-filename = "./memes.imgidx"
-meme_folder = "/home/isabelle/memes"
+chunk_folder = "./chunked_memes/"
+output_filename = "./complete_memes.imgidx"
+search_string = "/home/isabelle/memes"
+os.makedirs(chunk_folder, exist_ok=True)
 
-def calculate_tensors(files, existing_files):
-    model = SiglipVisionModel.from_pretrained("google/siglip-base-patch16-224")
-    processor = AutoProcessor.from_pretrained("google/siglip-base-patch16-224")
-
+def calculate_tensors(files, model, processor):
     stack = []
     for img in files:
-        if img not in existing_files:
-            try:
-                with Image.open(img) as image:
-                    inputs = processor(images=image, return_tensors="pt")
-                    outputs = model(**inputs)
-                    pooled_output = outputs.pooler_output
+        try:
+            with Image.open(img) as image:
+                inputs = processor(images=image, return_tensors="pt")
+                outputs = model(**inputs)
+                pooled_output = outputs.pooler_output
 
-                    stack.append({"filepath": img, "tensor": pooled_output})
-                    print(f"Done with {img}")
-            except Exception as e:
-                print(f"Problem with file: {img}. Skipping. Error: {e}")
-        else:
-            print(f"Already processed {img}. Skipping.")
+                stack.append({"filepath": img, "tensor": pooled_output})
+                print(f"Done with {img}")
+        except Exception as e:
+            print(f"Problem with file: {img}. Skipping. Error: {e}")
         
     return stack
 
-def main():
+def process_images():
     supported_formats = ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.tiff", "*.ico", "*.webp"]
     full_names = []
     for fmt in supported_formats:
-        full_names.extend(glob.glob(os.path.join(meme_folder, fmt)))
+        full_names.extend(glob.glob(os.path.join(search_string, fmt)))
     
-    # Load existing data if exists
-    existing_data = []
-    existing_files = []
-    if os.path.exists(filename):
-        with open(filename, 'rb') as infile:
-            existing_data = pickle.load(infile)
-            existing_files = [entry["filepath"] for entry in existing_data]
-    
-    # Calculate new tensors
-    new_data = calculate_tensors(full_names, existing_files)
-    
-    # Combine old and new data
-    combined_data = existing_data + new_data
-    
-    # Save combined data
-    with open(filename, 'wb') as outfile:
-        pickle.dump(combined_data, outfile)
-    
-    # Delete chunked files
-    chunk_files = glob.glob(f"{filename}.*")
-    for file in chunk_files:
-        os.remove(file)
-    
-    print("Done!")
+    step_size = 25
+    model = SiglipVisionModel.from_pretrained("google/siglip-base-patch16-224")
+    processor = AutoProcessor.from_pretrained("google/siglip-base-patch16-224")
+
+    num_chunks = (len(full_names) + step_size - 1) // step_size  # Calculate number of chunks
+    for index in range(num_chunks):
+        print(f"Processing Chunk {index + 1}\n")
+
+        start_idx = index * step_size
+        end_idx = min((index + 1) * step_size, len(full_names))
+        chunk_files = full_names[start_idx:end_idx]
+        calculated = calculate_tensors(chunk_files, model, processor)
+
+        print(f"Writing to file chunk {index + 1}")
+        with open(f"{chunk_folder}memes.imgidx.{index + 1}", 'wb') as fileout:
+            pickle.dump(calculated, fileout)
+
+        # Clear memory of individual chunks after saving them
+        del calculated
+        gc.collect()  # force garbage collection after each chunk
+
+        print(f"Done with chunk {index + 1}/{num_chunks}!")
+
+    print("Processing Done!")
+
+def consolidate_chunks():
+    searches = []
+    chunk_files = glob.glob(os.path.join(chunk_folder, "memes.imgidx.*"))
+
+    for chunk_file in chunk_files:
+        with open(chunk_file, "rb") as infile:
+            images = pickle.load(infile)
+            searches.extend(images)
+
+    with open(output_filename, "wb") as outfile:
+        pickle.dump(searches, outfile)
+
+    print("Consolidation Done!")
 
 if __name__ == "__main__":
-    main()
+    process_images()
+    consolidate_chunks()
