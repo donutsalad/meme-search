@@ -14,6 +14,7 @@ This project allows you to search through a collection of memes using a backend 
 1. **Clone the repository**:
     
 shell
+
     git clone <your_repo_url>
     cd your_repo
     
@@ -24,6 +25,7 @@ shell
     Run the `backend_server.py` script in the terminal:
     
 shell
+
     python backend_server.py
     
 ### Linux
@@ -31,6 +33,7 @@ shell
 1. **Clone the repository**:
     
 shell
+
     git clone <your_repo_url>
     cd your_repo
     
@@ -38,17 +41,20 @@ shell
     Make `setup.sh` executable by running:
     
 shell
+    
     chmod +x setup.sh
     
-    Then execute it:
+Then execute it:
     
 shell
+
     ./setup.sh
     
 3. **Start the server and React app**:
     Run the `backend_server.py` script in the terminal:
     
 shell
+
     python backend_server.py
     
 ## Usage
@@ -59,6 +65,7 @@ shell
 - Example search request:
     
 json
+
     {
         "query": "boykisser",
         "top_n": 10
