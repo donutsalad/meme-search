@@ -21,12 +21,19 @@ shell
 2. **Run the setup script**:
     Double-click `setup.bat` to install all dependencies required for both the Python backend and the React frontend.
 
-3. **Start the server and React app**:
-    Run the `backend_server.py` script in the terminal:
+3. **Embed your images**:
+    Run the `embed.py` script in the terminal after changing `search_string = "/home/isabelle/memes"` to your meme folder.
     
 shell
 
-    python backend_server.py
+    python embed.py
+
+4. **Start the server and React app**:
+    Run the `backend.py` script in the terminal:
+    
+shell
+
+    python backend.py
     
 ### Linux
 
@@ -50,12 +57,19 @@ shell
 
     ./setup.sh
     
-3. **Start the server and React app**:
-    Run the `backend_server.py` script in the terminal:
+3. **Embed your images**:
+    Run the `embed.py` script in the terminal after changing `search_string = "/home/isabelle/memes"` to your meme folder.
     
 shell
 
-    python backend_server.py
+    python embed.py
+
+4. **Start the server and React app**:
+    Run the `backend.py` script in the terminal:
+    
+shell
+
+    python backend.py
     
 ## Usage
 

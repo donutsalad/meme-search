@@ -4,9 +4,10 @@ import pickle
 from transformers import AutoTokenizer, SiglipTextModel
 from sentence_transformers import util
 import os
+import signal
 import subprocess
 
-index_file = "memes.imgidx"
+index_file = "complete_memes.imgidx"
 
 app = Flask(__name__)
 CORS(app)  # this will enable CORS for all routes
@@ -55,10 +56,19 @@ def get_image():
     filepath = request.args.get('filepath')
     return send_file(filepath, mimetype='image/jpeg')
 
+def kill_process_on_port(port):
+    """Kill process running on a given port."""
+    result = subprocess.run(['lsof', '-i', f':{port}'], capture_output=True, text=True)
+    if result.stdout:
+        pid = result.stdout.split('\n')[1].split()[1]  # Extract PID from the output
+        os.kill(int(pid), signal.SIGKILL)
+        
 def start_react_app():
     """Starts the React app using subprocess"""
-    react_app_path = './meme_search'
-    subprocess.Popen(['npm', 'start'], cwd=react_app_path)
+    if os.environ.get("FLASK_RUN_FROM_CLI") != "true":  # Only start if not running from Flask CLI
+        kill_process_on_port(3000)  # Kill any process on port 3000
+        react_app_path = './meme_search'
+        subprocess.Popen(['npm', 'start'], cwd=react_app_path)
 
 if __name__ == "__main__":
     start_react_app()  # Start the React app
