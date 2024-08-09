@@ -6,11 +6,13 @@ from sentence_transformers import util
 import os
 import subprocess
 
+index_file = "memes.imgidx"
+
 app = Flask(__name__)
 CORS(app)  # this will enable CORS for all routes
 
 print("Loading indexed data")
-with open("memes.imgidx", 'rb') as indexed:
+with open(index_file, 'rb') as indexed:
     saved_data = pickle.load(indexed)
 
 print("Loaded indexed data...\nLoading Neural Networks")

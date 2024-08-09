@@ -5,6 +5,7 @@ from transformers import AutoProcessor, SiglipVisionModel
 import os
 
 filename = "./memes.imgidx"
+meme_folder = "/home/isabelle/memes"
 
 def calculate_tensors(files, existing_files):
     model = SiglipVisionModel.from_pretrained("google/siglip-base-patch16-224")
@@ -32,7 +33,7 @@ def main():
     supported_formats = ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.tiff", "*.ico", "*.webp"]
     full_names = []
     for fmt in supported_formats:
-        full_names.extend(glob.glob(os.path.join("/home/isabelle/memes/", fmt)))
+        full_names.extend(glob.glob(os.path.join(meme_folder, fmt)))
     
     # Load existing data if exists
     existing_data = []

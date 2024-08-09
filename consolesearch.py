@@ -2,6 +2,8 @@ import pickle
 from transformers import AutoTokenizer, SiglipTextModel
 from sentence_transformers import util
 
+index_file = "memes.imgidx"
+
 def load_indexed_data(filename):
     print("Loading indexed data...")
     with open(filename, 'rb') as indexed:
@@ -18,7 +20,7 @@ def cosine_to_confidence(cosine_similarity):
     if cosine_similarity > 0.075:
         return 100 * (cosine_similarity ** 0.1)
     else:
-        return 100 * (cosine_similarity ** 0.1)
+        return 100 * (cosine_similarity ** 0.2)
 
 def image_search(saved_data, model, tokenizer):
     embedding_text = input("Enter search text: ")
@@ -44,7 +46,7 @@ def image_search(saved_data, model, tokenizer):
 
 if __name__ == "__main__":
     print("Meme Search\n")
-    saved_data = load_indexed_data("otherimages.imgidx")
+    saved_data = load_indexed_data(index_file)
     model, tokenizer = load_models()
 
     while True:

@@ -60,19 +60,13 @@ shell
     
 json
     {
-        "query": "funny cat",
+        "query": "boykisser",
         "top_n": 10
     }
     
 ### React App
 
 - The React app will be started alongside the Flask server and can be accessed in your default web browser at the specified port (default is `http://localhost:3000`).
-
-### Directory Structure
-
-- `/path/to/your/memes/`: Directory containing your meme images.
-- `/path/to/your/react/app/`: Directory containing your React app.
-**Note:** Make sure to replace `/path/to/your/memes/` and `/path/to/your/react/app/` with the actual paths in the `setup.bat` and `setup.sh` scripts.
 
 ## License
 
